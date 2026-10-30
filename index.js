@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// ۱. پروکسی تلگرام
+// ۱. پروکسی تلگرام – فقط برای /telegram
 app.use('/telegram', createProxyMiddleware({
   target: 'https://api.telegram.org',
   changeOrigin: true,
@@ -21,12 +21,12 @@ app.use('/telegram', createProxyMiddleware({
   ws: true,
 }));
 
-// ۲. پروکسی Apinex (معادل ProxyPass /apinex/ https://api.apinex.bond/)
+// ۲. پروکسی Apinex – فقط برای /apinex
 app.use('/apinex', createProxyMiddleware({
   target: 'https://api.apinex.bond',
   changeOrigin: true,
   pathRewrite: {
-    '^/apinex': ''  // حذف /apinex از مسیر
+    '^/apinex': ''  // حذف /apinex
   },
   onProxyReq: (proxyReq, req, res) => {
     proxyReq.removeHeader('cf-connecting-ip');
@@ -34,7 +34,7 @@ app.use('/apinex', createProxyMiddleware({
   },
 }));
 
-// ۳. پروکسی Groq (معادل ProxyPass /groq/ https://api.groq.com/openai/)
+// ۳. پروکسی Groq – فقط برای /groq
 app.use('/groq', createProxyMiddleware({
   target: 'https://api.groq.com/openai',
   changeOrigin: true,
@@ -45,71 +45,16 @@ app.use('/groq', createProxyMiddleware({
   ws: true,
 }));
 
-// ۴. پروکسی اصلی Mercury (معادل ProxyPass / https://api.inceptionlabs.ai/)
+// ۴. پروکسی اصلی Mercury – برای همه مسیرهای دیگر
 app.use('/', createProxyMiddleware({
   target: 'https://api.inceptionlabs.ai',
   changeOrigin: true,
   pathRewrite: {
-    '^/': ''  // مسیر را همان‌طور که هست ارسال کن
+    '^/': ''  // ارسال مستقیم
   },
 }));
 
-// صفحه خوش‌آمدگویی (برای Health Check)
-app.get('/', (req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-const express = require('express');
-const { createProxyMiddleware } = require('http-proxy-middleware');
-const cors = require('cors');
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-
-// پروکسی تلگرام
-app.use('/telegram', createProxyMiddleware({
-  target: 'https://api.telegram.org',
-  changeOrigin: true,
-  onProxyReq: (proxyReq, req, res) => {
-    proxyReq.removeHeader('cf-connecting-ip');
-    proxyReq.removeHeader('x-forwarded-for');
-    proxyReq.removeHeader('x-real-ip');
-  },
-  ws: true,
-}));
-
-// پروکسی Groq
-app.use('/groq', createProxyMiddleware({
-  target: 'https://api.groq.com/openai',
-  changeOrigin: true,
-  onProxyReq: (proxyReq, req, res) => {
-    proxyReq.removeHeader('cf-connecting-ip');
-    proxyReq.removeHeader('x-forwarded-for');
-  },
-  ws: true,
-}));
-
-// پروکسی Apinex (با pathRewrite برای حذف /apinex)
-app.use('/apinex', createProxyMiddleware({
-  target: 'https://api.apinex.bond',
-  changeOrigin: true,
-  pathRewrite: {
-    '^/apinex': ''
-  },
-  onProxyReq: (proxyReq, req, res) => {
-    proxyReq.removeHeader('cf-connecting-ip');
-    proxyReq.removeHeader('x-forwarded-for');
-  },
-}));
-
-// صفحه خوش‌آمدگویی
+// Health Check
 app.get('/', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
