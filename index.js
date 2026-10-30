@@ -12,12 +12,11 @@ app.use('/telegram', createProxyMiddleware({
   target: 'https://api.telegram.org',
   changeOrigin: true,
   onProxyReq: (proxyReq, req, res) => {
-    // حذف هدرهای نشت‌دهنده آی‌پی
     proxyReq.removeHeader('cf-connecting-ip');
     proxyReq.removeHeader('x-forwarded-for');
     proxyReq.removeHeader('x-real-ip');
   },
-  ws: true, // پشتیبانی از وب‌ساکت
+  ws: true,
 }));
 
 // پروکسی Groq
@@ -43,10 +42,7 @@ app.use('/apinex', createProxyMiddleware({
 
 // صفحه خوش‌آمدگویی
 app.get('/', (req, res) => {
-  res.send('پروکسی چندپروایدری روی Koyeb فعال است. <br>
-    <a href="/telegram/botYOUR_TOKEN/getMe">تست تلگرام</a><br>
-    <a href="/groq/v1/chat/completions">تست Groq</a><br>
-    <a href="/apinex/v1/chat/completions">تست Apinex</a>');
+  res.status(200).send('پروکسی چندپروایدری روی Koyeb فعال است.');
 });
 
 app.listen(PORT, () => {
