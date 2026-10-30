@@ -1,0 +1,17 @@
+name: Generate Lockfile
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: npm install
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Add package-lock.json"
