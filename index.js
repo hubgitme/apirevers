@@ -42,8 +42,9 @@ app.use('/apinex', createProxyMiddleware({
 
 // صفحه خوش‌آمدگویی
 app.get('/', (req, res) => {
-  res.status(200).send('پروکسی چندپروایدری روی Koyeb فعال است.');
+  res.status(200).json({ status: 'ok' });
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
